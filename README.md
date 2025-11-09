@@ -1,90 +1,72 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# CRM MobileSoft
 
-# Getting Started
+Bienvenido a `CRMMobileSoft`, una aplicación móvil de gestión de relaciones con clientes (CRM) completamente funcional. Este proyecto fue construido desde cero utilizando React Native (CLI) y Firebase.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+La aplicación permite a los usuarios gestionar clientes y empresas a través de una base de datos en la nube, con autenticación segura y una arquitectura de estado global.
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Funcionalidades principales
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+Esta aplicación implementa una arquitectura sólida y profesional que incluye:
+
+* **Autenticación completa:** flujo de registro (`SignUpScreen`) e inicio de sesión (`LoginScreen`) conectado a **Firebase Auth**.
+* **Base de datos en la nube:** todos los datos de clientes y empresas se guardan permanentemente en **Firestore**, permitiendo la persistencia de datos entre sesiones.
+* **Gestión de estado global:** se utiliza **Redux Toolkit** como el "cerebro" central de la app para gestionar las listas de clientes y empresas, permitiendo que la interfaz de usuario reaccione instantáneamente a los cambios.
+* **Navegación anidada:** se utiliza **React Navigation** para crear un flujo de usuario robusto:
+    * Un **Stack Navigator** principal que maneja el flujo de "Autenticación" (Login/Registro) y las pantallas "modales" (como Añadir/Editar).
+    * Un **Bottom Tab Navigator** (Pestañas) para la interfaz principal de la app (Dashboard, Clientes, Empresas).
+* **CRUD completo:**
+    * Funcionalidad completa de **Crear, Leer, Actualizar y Eliminar (CRUD)** para Clientes.
+    * Funcionalidad completa de **CRUD** para Empresas.
+* **Relaciones de datos (CRM):** los Clientes están **vinculados** a las Empresas.
+    * Al crear un cliente, se puede seleccionar una empresa de la lista (leída desde Redux).
+    * Al ver una empresa, se puede navegar a una pantalla de detalles que muestra una lista filtrada de todos los clientes que pertenecen a esa empresa.
+* **Dashboard de resumen:** una pantalla de inicio que muestra estadísticas clave en tiempo real (total de clientes, total de empresas) leídas directamente desde el estado de Redux.
+
+---
+
+## Pila tecnológica (Tech Stack)
+
+* **Framework:** React Native (CLI)
+* **Lenguaje:** TypeScript
+* **Base de Datos:** Firebase Firestore
+* **Autenticación:** Firebase Auth
+* **Gestión de Estado:** Redux Toolkit
+* **Navegación:** React Navigation (Stack, Tabs)
+* **UI (Componentes):** React Native Paper
+* **Iconos:** React Native Vector Icons
+
+---
+
+## Cómo empezar
+
+Siga los pasos para ejecutar el proyecto en su  máquina local.
+
+### 1. Requisitos 
+
+Asegurarse de tener el entorno de desarrollo de React Native (CLI) configurado.
+* [Guía de Configuración Oficial](https://reactnative.dev/docs/set-up-your-environment) (Selecciona "React Native CLI", tu "Development OS" y "Android" como "Target OS").
+* Node.js (LTS)
+* JDK (v17)
+* Android Studio (para el SDK de Android)
+
+> **⚠️ ¡Importante! Configuración de Firebase**
+>
+> Este proyecto requiere una conexión a Firebase para funcionar. Para ejecutarlo localmente, se debe:
+> 1.  Crear un propio proyecto gratuito en la [Consola de Firebase](https://console.firebase.google.com/).
+> 2.  Activar **Auth** (con el proveedor de email/contraseña).
+> 3.  Activar **Firestore** (en modo de prueba).
+> 4.  Registrar una nueva app de Android en el proyecto de Firebase (el nombre del paquete es `com.crmmobilesoft`).
+> 5.  Descargar el archivo `google-services.json` que Firebase da.
+> 6.  Colocar ese archivo `google-services.json` en la carpeta `CRMMobileSoft/android/app/`.
+
+### 2. Instalación
+
+Clona el repositorio y, desde la raíz del proyecto, instala todas las dependencias:
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+npm install
 
 # Learn More
 
