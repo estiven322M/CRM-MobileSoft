@@ -1,45 +1,53 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+// Archivo: App.tsx
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import React from 'react';
+import { PaperProvider } from 'react-native-paper';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+// --- Importaciones de Redux ---
+import { Provider } from 'react-redux';
+import { store } from './src/redux/store';
 
+// --- Importamos pantallas ---
+import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+import PeopleListScreen from './src/screens/PeopleListScreen';
+import AddPersonScreen from './src/screens/AddPersonScreen';
+import EditPersonScreen from './src/screens/EditPersonScreen';
+import HomeTabs from './src/navigation/HomeTabs';
+
+
+// 1. Creamos el "Stack Navigator"
+const Stack = createNativeStackNavigator();
+
+// 2. Este es el bloque de código actualizado
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    // 3. El Provider de Redux envuelve todo
+    <Provider store={store}>
+      {/* 4. El PaperProvider va dentro */}
+      <PaperProvider>
+        {/* 5. El NavigationContainer va dentro de PaperProvider */}
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Login"
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            {/* Tus pantallas */}
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="Home" component={HomeTabs} />
+            <Stack.Screen name="AddPerson" component={AddPersonScreen} />
+            <Stack.Screen name="EditPerson" component={EditPersonScreen} />
+            
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </Provider>
   );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
