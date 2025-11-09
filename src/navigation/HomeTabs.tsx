@@ -1,47 +1,45 @@
 // Archivo: src/navigation/HomeTabs.tsx
 
 import React from 'react';
-// 1. Importamos el creador de pestañas
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-// 2. Importamos el icono (¡ya lo teníamos instalado!)
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// 3. Importamos las dos pantallas que irán en las pestañas
+// --- 1. IMPORTAMOS LAS 3 PANTALLAS ---
+import DashboardScreen from '../screens/DashboardScreen'; // <-- NUEVA
 import PeopleListScreen from '../screens/PeopleListScreen';
 import CompanyListScreen from '../screens/CompanyListScreen';
 
-// 4. Creamos el navegador de pestañas
 const Tab = createBottomTabNavigator();
 
 const HomeTabs = () => {
   return (
-    // 5. Definimos el Navegador
     <Tab.Navigator
-      // 6. Opciones para todas las pestañas
+      // Definimos la pestaña inicial
+      initialRouteName="Dashboard" // <-- NUEVO: Empezar en el Dashboard
+      
       screenOptions={({ route }) => ({
-        headerShown: false, // Ocultamos el título superior en cada pestaña
-        tabBarActiveTintColor: '#6200ee', // Color de la pestaña activa
-        tabBarInactiveTintColor: 'gray', // Color de la pestaña inactiva
+        headerShown: false,
+        tabBarActiveTintColor: '#6200ee',
+        tabBarInactiveTintColor: 'gray',
 
-        // 7. ¡LA MAGIA! Función para definir el icono
+        // --- 2. ACTUALIZAMOS LA LÓGICA DE ICONOS ---
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName = 'account'; // Icono por defecto
+          let iconName = 'account'; 
 
-          if (route.name === 'Clientes') {
-            // Icono para Clientes
+          if (route.name === 'Dashboard') { // <-- NUEVA LÓGICA
+            iconName = focused ? 'view-dashboard' : 'view-dashboard-outline';
+          } else if (route.name === 'Clientes') {
             iconName = focused ? 'account-group' : 'account-group-outline';
           } else if (route.name === 'Empresas') {
-            // Icono para Empresas
             iconName = focused ? 'office-building' : 'office-building-outline';
           }
 
-          // Devolvemos el componente de Icono
           return <Icon name={iconName} size={size} color={color} />;
         },
       })}
     >
-      {/* 8. Definimos nuestras dos pestañas */}
+      {/* --- 3. AÑADIMOS LAS 3 PESTAÑAS --- */}
+      <Tab.Screen name="Dashboard" component={DashboardScreen} /> 
       <Tab.Screen name="Clientes" component={PeopleListScreen} />
       <Tab.Screen name="Empresas" component={CompanyListScreen} />
     </Tab.Navigator>

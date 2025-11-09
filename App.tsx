@@ -18,6 +18,7 @@ import EditPersonScreen from './src/screens/EditPersonScreen';
 import HomeTabs from './src/navigation/HomeTabs';
 import AddCompanyScreen from './src/screens/AddCompanyScreen';
 import EditCompanyScreen from './src/screens/EditCompanyScreen';
+import CompanyDetailScreen from './src/screens/CompanyDetailScreen';
 
 
 // 1. Creamos el "Stack Navigator"
@@ -46,6 +47,7 @@ const App = () => {
             <Stack.Screen name="EditPerson" component={EditPersonScreen} />
             <Stack.Screen name="AddCompany" component={AddCompanyScreen} />
             <Stack.Screen name="EditCompany" component={EditCompanyScreen} />
+            <Stack.Screen name="CompanyDetail" component={CompanyDetailScreen} />
             
           </Stack.Navigator>
         </NavigationContainer>

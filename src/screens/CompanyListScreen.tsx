@@ -35,8 +35,6 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
     (state: RootState) => state.companies,
   );
   
-  // (Añadí la función de Cerrar Sesión aquí, ya que la quitamos
-  // de PeopleListScreen y la app ya no tiene cómo cerrarla)
   const handleSignOut = async () => {
     try {
       await auth().signOut();
@@ -47,7 +45,6 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const handleDelete = (companyId: string) => {
-    // 4.1. Preguntar al usuario (Confirmación)
     Alert.alert(
       'Eliminar Empresa',
       '¿Estás seguro de que deseas eliminar esta empresa?',
@@ -57,16 +54,13 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
-            // 4.2. Eliminar de Firebase (Ruta simple)
             try {
               await firestore()
                 .collection('companies')
                 .doc(companyId)
                 .delete();
 
-              // 4.3. Eliminar de Redux (local)
               dispatch(deleteCompanyLocal(companyId));
-
             } catch (err) {
               console.error('Error al eliminar empresa:', err);
               Alert.alert('Error', 'No se pudo eliminar la empresa.');
@@ -109,17 +103,20 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
         renderItem={({ item }) => (
           <CompanyListItem
             company={item}
+            
+            // --- 👇👇 ¡AQUÍ ESTÁ LA CORRECCIÓN! 👇👇 ---
+            // Cambiamos el destino de 'EditCompany' a 'CompanyDetail'
             onPress={() => {
-                // Navegamos a 'EditCompany' y le pasamos el 'item' (la empresa)
-                navigation.navigate('EditCompany', { company: item });
+              // Navegamos a 'CompanyDetail' y le pasamos el 'item' (la empresa)
+              navigation.navigate('CompanyDetail', { company: item });
             }}
+            // --- 👆👆 FIN DE LA CORRECCIÓN 👆👆 ---
+
             onDeletePress={() => handleDelete(item.id)}
           />
         )}
         keyExtractor={item => item.id}
         
-        // <-- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
-        // Restauramos el componente de lista vacía
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Aún no hay empresas.</Text>
@@ -152,7 +149,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 15,
   },
-  button: { // <-- Estilo para el botón de logout
+  button: {
     marginHorizontal: 10,
     marginBottom: 10,
   },
