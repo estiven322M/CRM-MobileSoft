@@ -6,11 +6,11 @@ import {
   TextInput,
   Button,
   Title,
-  ActivityIndicator, // <--- 1. Importar el cargador
+  ActivityIndicator, 
   MD2Colors,
 } from 'react-native-paper';
 
-// 2. Importar el módulo de autenticación de Firebase
+// Importar el módulo de autenticación de Firebase
 import auth from '@react-native-firebase/auth';
 
 const SignUpScreen = ({ navigation }: { navigation: any }) => {
@@ -18,10 +18,10 @@ const SignUpScreen = ({ navigation }: { navigation: any }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // 3. Añadir el estado de carga
+  // Añadir el estado de carga
   const [isLoading, setIsLoading] = useState(false);
 
-  // 4. Reemplazar la función 'handleSignUp' completa
+  // Reemplazar la función 'handleSignUp' completa
   const handleSignUp = async () => {
     // Validar campos vacíos
     if (email === '' || password === '' || confirmPassword === '') {
@@ -38,16 +38,16 @@ const SignUpScreen = ({ navigation }: { navigation: any }) => {
     setIsLoading(true); // Activar el cargador
 
     try {
-      // 5. Intentar crear el usuario en Firebase
+      // Intentar crear el usuario en Firebase
       await auth().createUserWithEmailAndPassword(email, password);
 
-      // 6. Si tiene éxito:
+      // Si tiene éxito:
       setIsLoading(false); // Desactivar el cargador
       Alert.alert(
         '¡Cuenta Creada!',
-        'Tu cuenta ha sido registrada exitosamente. Serás redirigido a Iniciar Sesión.',
+        'Tu cuenta ha sido registrada exitosamente. Serás redirigido a Iniciar sesión.',
       );
-      // 7. Enviar al usuario de vuelta a Login
+      // Enviar al usuario de vuelta a Login
       navigation.navigate('Login');
 
     } catch (error: any) {
@@ -69,7 +69,7 @@ const SignUpScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  // 9. Añadir el renderizado condicional para el cargador
+  
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -83,7 +83,7 @@ const SignUpScreen = ({ navigation }: { navigation: any }) => {
     );
   }
 
-  // 10. El formulario (esto ya lo tenías)
+  
   return (
     <View style={styles.container}>
       <Title style={styles.title}>Crear Cuenta</Title>
@@ -132,7 +132,7 @@ const SignUpScreen = ({ navigation }: { navigation: any }) => {
   );
 };
 
-// 11. Añadir los estilos para el cargador
+// Añadir estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10,
   },
-  // 👇👇 Estilos nuevos 👇👇
+  
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',

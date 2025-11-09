@@ -1,22 +1,22 @@
 // Archivo: src/redux/store.ts
 
 import { configureStore } from '@reduxjs/toolkit';
-// Importamos el reducer de nuestro "peopleSlice"
 import peopleReducer from './slices/peopleSlice';
 import companiesReducer from './slices/companiesSlice';
 
-// 1. Creamos el store
+// Configuración principal del store de Redux
 export const store = configureStore({
-  // 2. "reducer" es un mapa de todos nuestros slices
+  // Cada slice se asocia a una clave dentro del estado global
   reducer: {
     // Le decimos que el 'peopleReducer' manejará la parte 'people' del estado
-    people: peopleReducer,
-    companies: companiesReducer,
+    people: peopleReducer, // Maneja la información de personas
+    companies: companiesReducer, // Maneja la información de empresas
   },
 });
 
-// 3. Tipos útiles para TypeScript (nos ayudarán a autocompletar)
-// Infiere el tipo del estado completo
+// Tipos derivados para usar con TypeScript
+// Permiten obtener autocompletado y tipado seguro en el proyecto
 export type RootState = ReturnType<typeof store.getState>;
-// Infiere el tipo de la función 'dispatch'
+
+// Representa la estructura completa del estado global
 export type AppDispatch = typeof store.dispatch;

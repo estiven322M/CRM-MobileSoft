@@ -10,15 +10,13 @@ import {
   MD2Colors,
 } from 'react-native-paper';
 
-// --- Firebase & Redux ---
+// Firebase y Redux
 import firestore from '@react-native-firebase/firestore';
 import { useDispatch } from 'react-redux';
 import { Company } from '../redux/slices/companiesSlice';
-// <-- 1. IMPORTAMOS LA NUEVA ACCIÓN
 import { updateCompanyLocal } from '../redux/slices/companiesSlice';
-// --- Fin ---
 
-// (Usamos la corrección 'props: any' que nos funcionó)
+
 const EditCompanyScreen = (props: any) => {
   const { navigation, route } = props;
   const { company } = route.params;
@@ -37,7 +35,7 @@ const EditCompanyScreen = (props: any) => {
     setIsLoading(true);
 
     try {
-      // 1. Actualizar Firebase
+      // Actualizar Firebase
       await firestore()
         .collection('companies')
         .doc(company.id)
@@ -45,16 +43,16 @@ const EditCompanyScreen = (props: any) => {
           name: name,
         });
 
-      // <-- 2. ¡LA LÓGICA DE REDUX!
-      // Creamos el objeto 'Company' completo y actualizado
+      
+      // Crear el objeto 'Company' completo y actualizado
       const updatedCompany = {
         id: company.id,
         name: name,
       };
-      // Despachamos la acción a Redux para actualizar la lista local
+      // Hacer la acción a Redux para actualizar la lista local
       dispatch(updateCompanyLocal(updatedCompany));
 
-      // 3. Volver a la lista
+      // Volver a la lista
       navigation.goBack();
     } catch (error) {
       setIsLoading(false);
@@ -63,8 +61,7 @@ const EditCompanyScreen = (props: any) => {
     }
   };
 
-  // (El resto del componente 'return', 'if (isLoading)', etc. no cambia)
-
+  
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>
@@ -106,7 +103,7 @@ const EditCompanyScreen = (props: any) => {
   );
 };
 
-// (Estilos - sin cambios)
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,

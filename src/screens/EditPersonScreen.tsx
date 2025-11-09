@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
-// 1. IMPORTAMOS Menu y Divider
 import {
   TextInput,
   Button,
@@ -13,17 +12,16 @@ import {
   MD2Colors,
 } from 'react-native-paper';
 
-// --- Redux ---
-// 2. IMPORTAMOS useSelector, RootState y la acción de actualizar
+//  Redux 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store'; // Para leer la lista de empresas
 import { updatePersonLocal, Person } from '../redux/slices/peopleSlice'; // Importamos Person
-// --- Fin Redux ---
 
-// --- Firebase ---
+
+// Firebase
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-// --- Fin Firebase ---
+
 
 const EditPersonScreen = (props: any) => {
   const { navigation, route } = props;
@@ -31,17 +29,17 @@ const EditPersonScreen = (props: any) => {
 
   const dispatch = useDispatch();
 
-  // 3. LEEMOS LA LISTA DE EMPRESAS DE REDUX
+  // Leer lista de empresa Redux
   const { companyList } = useSelector((state: RootState) => state.companies);
 
-  // 4. ESTADOS DEL FORMULARIO (PRE-RELLENADOS)
+  // Estados de los formularios
   const [name, setName] = useState(person.name);
   const [notes, setNotes] = useState(person.notes);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 5. ESTADOS DEL MENÚ (PRE-RELLENADOS)
+  // Estados del menú
   const [menuVisible, setMenuVisible] = useState(false);
-  // Pre-seleccionamos la empresa con la que venía el cliente
+  // Pre-seleccionamos la empresa con la que viene el cliente
   const [selectedCompany, setSelectedCompany] = useState<{ id: string | null; name: string } | null>(
     person.companyId ? { id: person.companyId, name: person.companyName } : null
   );
@@ -49,7 +47,7 @@ const EditPersonScreen = (props: any) => {
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
-  // 6. LÓGICA DE ACTUALIZAR (MODIFICADA)
+  
   const handleUpdate = async () => {
     if (name.trim() === '') {
       Alert.alert('Error', 'El nombre es obligatorio.');
@@ -64,7 +62,7 @@ const EditPersonScreen = (props: any) => {
 
     setIsLoading(true);
 
-    // 7. PREPARAMOS LOS DATOS PARA ACTUALIZAR
+    // Datos a actualizar
     const updatedData = {
       name: name,
       notes: notes,
@@ -73,7 +71,7 @@ const EditPersonScreen = (props: any) => {
     };
 
     try {
-      // 8. Actualizar en Firebase
+      // Actualizar en Firebase
       await firestore()
         .collection('users')
         .doc(currentUser.uid)
@@ -81,7 +79,7 @@ const EditPersonScreen = (props: any) => {
         .doc(person.id) // Usamos el ID del cliente existente
         .update(updatedData); // Usamos .update()
 
-      // 9. Actualizar en Redux
+      // Actualizar en Redux
       dispatch(
         updatePersonLocal({
           ...updatedData,
@@ -118,7 +116,7 @@ const EditPersonScreen = (props: any) => {
         style={styles.input}
       />
 
-      {/* --- 10. EL MENÚ DESPLEGABLE (IDÉNTICO A ADDPERSON) --- */}
+      {/* MENÚ DESPLEGABLE */}
       <Menu
         visible={menuVisible}
         onDismiss={closeMenu}
@@ -155,7 +153,7 @@ const EditPersonScreen = (props: any) => {
           />
         ))}
       </Menu>
-      {/* --- FIN DEL MENÚ --- */}
+      {/*  Fin  */}
 
       <TextInput
         label="Notas"
@@ -187,7 +185,7 @@ const EditPersonScreen = (props: any) => {
   );
 };
 
-// (Estilos - actualizados para ScrollView)
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,

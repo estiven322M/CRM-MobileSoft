@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
-// --- 1. IMPORTAMOS Menu y Divider ---
+// Importar componenetes visuales de react-native-paper
 import {
   TextInput,
   Button,
@@ -11,30 +11,30 @@ import {
   Divider,
 } from 'react-native-paper';
 
-// --- Redux ---
-// --- 2. IMPORTAMOS useSelector y RootState ---
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store'; // Para leer la lista de empresas
-import { addPerson, Person } from '../redux/slices/peopleSlice'; // Importamos Person
-// --- Fin Redux ---
+//  Redux y tipos globales
 
-// --- Firebase ---
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store'; // Para leer el estado global
+import { addPerson, Person } from '../redux/slices/peopleSlice'; // Accion y tipo de persona
+// Fin de Redux
+
+// Importar de Firebase
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-// --- Fin Firebase ---
 
+// Componente principal de la pantalla "Añadir Persona"
 const AddPersonScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
 
-  // --- 3. LEEMOS LA LISTA DE EMPRESAS DE REDUX ---
+  // Leer la lista de empresas guardadas en Redux
   const { companyList } = useSelector((state: RootState) => state.companies);
 
   // Estados del formulario
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // (Lo añadiremos después)
+  const [isLoading, setIsLoading] = useState(false); 
 
-  // --- 4. ESTADOS PARA EL MENÚ DESPLEGABLE ---
+  // Estados del menú desplegable
   const [menuVisible, setMenuVisible] = useState(false);
   // Guardamos el objeto de empresa seleccionado (o null)
   const [selectedCompany, setSelectedCompany] = useState<{ id: string; name: string } | null>(null);
@@ -42,36 +42,37 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
+  // Función para guardar persona
   const handleSave = async () => {
     if (name.trim() === '') {
       Alert.alert('Error', 'El nombre es obligatorio.');
       return;
     }
 
+    // Verificar que el usuario esté autenticado en Firebase
     const currentUser = auth().currentUser;
     if (!currentUser) {
       Alert.alert('Error', 'No estás autenticado.');
       return;
     }
 
-    // --- 5. PREPARAMOS LOS DATOS PARA GUARDAR ---
+    // Peparar los datos para Firestore
     const newPersonData = {
       name: name,
       notes: notes,
-      // Guardamos el ID y el nombre de la empresa seleccionada
       companyId: selectedCompany ? selectedCompany.id : null,
       companyName: selectedCompany ? selectedCompany.name : 'Sin empresa',
     };
 
     try {
-      // Guardar en Firestore
+      // Guardamos en la subcolección 'contacts' dentro del usuario actual
       const docRef = await firestore()
         .collection('users')
         .doc(currentUser.uid)
         .collection('contacts')
         .add(newPersonData);
 
-      // Guardar en Redux (con el ID real)
+      // Luego, actualizamos el estado local en Redux (sin esperar recarga)
       dispatch(
         addPerson({
           ...newPersonData,
@@ -79,13 +80,16 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
         } as Person), // Le decimos a TS que esto es una Persona
       );
 
+      // Regresar a la pantalla anterior
       navigation.goBack();
     } catch (error) {
+      // Si algo falla, mostramos alerta
       console.error('Error guardando cliente:', error);
       Alert.alert('Error', 'No se pudo guardar el cliente.');
     }
   };
 
+  // INTERFAZ GRAFICA
   return (
     // Usamos ScrollView por si la lista de empresas es muy larga
     <ScrollView contentContainerStyle={styles.container}>
@@ -98,11 +102,10 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
         style={styles.input}
       />
 
-      {/* --- 6. EL NUEVO MENÚ DESPLEGABLE --- */}
+      {/* --- MENÚ DESPLEGABLE PARA SELECCIONAR EMPRESA--- */}
       <Menu
         visible={menuVisible}
         onDismiss={closeMenu}
-        // El 'anchor' es el botón que abre el menú
         anchor={
           <Button
             mode="outlined" // Estilo de borde
@@ -168,7 +171,6 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
 };
 
 const styles = StyleSheet.create({
-  // Tuvimos que cambiar el 'justifyContent' para que funcione el ScrollView
   container: {
     flexGrow: 1, 
     padding: 20,

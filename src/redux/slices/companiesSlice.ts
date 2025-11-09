@@ -7,25 +7,27 @@ import {
 } from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
 
-// (Las interfaces 'Company' y 'CompaniesState' no cambian)
+// Definicion del tipo de dato para una empresa
 export interface Company {
   id: string;
   name: string;
 }
 
+// Estructura del estado dentro del slice
 interface CompaniesState {
   companyList: Company[];
   loading: boolean;
   error: string | null;
 }
 
+// Estado inicial
 const initialState: CompaniesState = {
   companyList: [],
   loading: false,
   error: null,
 };
 
-// (El Thunk 'fetchCompanies' no cambia)
+// Acción asíncrona: obtiene la lista de empresas desde Firestore
 export const fetchCompanies = createAsyncThunk(
   'companies/fetchCompanies',
   async (_, { rejectWithValue }) => {
@@ -46,25 +48,23 @@ export const fetchCompanies = createAsyncThunk(
   },
 );
 
-// (El 'createSlice' es donde están los cambios)
+// Definicion del slice
 const companiesSlice = createSlice({
   name: 'companies',
   initialState,
-  // Reducers síncronos
+  // Reducers síncronos: modifican el estado directamente
   reducers: {
-    // Este ya lo tenías
+    // Agrega una empresa localmente
     addCompanyLocal(state, action: PayloadAction<Company>) {
       state.companyList.push(action.payload);
     },
-    // Este ya lo tenías
+    // Elimina una empresa por su ID
     deleteCompanyLocal(state, action: PayloadAction<string>) {
       state.companyList = state.companyList.filter(
         company => company.id !== action.payload,
       );
     },
-
-    // <-- 1. AÑADIMOS EL REDUCER DE ACTUALIZAR
-    // Recibe el objeto 'Company' completo y actualizado
+    // Actualiza los datos de una empresa existente
     updateCompanyLocal(state, action: PayloadAction<Company>) {
       // Usamos .map para crear un nuevo array
       // Reemplazamos solo el ítem que coincide con el ID
@@ -74,7 +74,7 @@ const companiesSlice = createSlice({
     },
   },
 
-  // (El 'extraReducers' para 'fetchCompanies' no cambia)
+  // Reducers adicionales para manejar el ciclo de vida de fetchCompanies
   extraReducers: builder => {
     builder
       .addCase(fetchCompanies.pending, state => {
@@ -95,11 +95,11 @@ const companiesSlice = createSlice({
   },
 });
 
-// 6. Exportamos acciones y reducer
+// Exportación de las acciones y del reducer
 export const {
   addCompanyLocal,
   deleteCompanyLocal,
-  updateCompanyLocal, // <-- 2. EXPORTAMOS LA NUEVA ACCIÓN
+  updateCompanyLocal, 
 } = companiesSlice.actions;
 
 export default companiesSlice.reducer;

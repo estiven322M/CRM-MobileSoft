@@ -1,41 +1,38 @@
 // Archivo: src/screens/CompanyDetailScreen.tsx
 
-import React from 'react'; // No necesitamos useEffect aquí
+import React from 'react'; 
 import { View, StyleSheet, FlatList, Text, Alert } from 'react-native';
-import { Title, Button } from 'react-native-paper'; // Quitamos FAB, etc.
+import { Title, Button } from 'react-native-paper'; 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-// --- Redux ---
+// Redux
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-// Importamos las acciones de Personas, ya que esta lista maneja Personas
 import { deletePersonLocal } from '../redux/slices/peopleSlice';
 // --- Fin Redux ---
 
-import PersonListItem from '../components/PersonListItem'; // <-- REUTILIZAMOS el ítem de Persona
+import PersonListItem from '../components/PersonListItem'; // Reutilizar componenete Persona
 
-// 1. Recibimos 'props: any' para 'route' y 'navigation'
+// Pantalla que muestra los detalles de una empesa y sus clientes asociados
 const CompanyDetailScreen = (props: any) => {
   const { navigation, route } = props;
-  // 2. Obtenemos la empresa que se pasó como parámetro
-  const { company } = route.params;
+  const { company } = route.params; // Empesa seleccionada desde la lista
 
   const dispatch: AppDispatch = useDispatch();
 
-  // 3. LEEMOS la lista COMPLETA de clientes desde Redux
+  // Obener personas desde Redux
   const { peopleList } = useSelector(
     (state: RootState) => state.people,
   );
 
-  // 4. ¡LA MAGIA! Filtramos la lista de clientes
-  // Nos quedamos solo con las personas cuyo 'companyId' coincide
+  // Filtrar las personas que pertenecen a esta empesa
   const filteredClients = peopleList.filter(
     person => person.companyId === company.id,
   );
 
-  // 5. Reutilizamos la lógica de 'handleDelete' de PeopleListScreen
-  // ¡Podemos borrar clientes desde esta pantalla también!
+  
+  // Eliminar un cliente
   const handleDelete = (personId: string) => {
     Alert.alert(
       'Eliminar Cliente',
@@ -50,6 +47,7 @@ const CompanyDetailScreen = (props: any) => {
               const userId = auth().currentUser?.uid;
               if (!userId) throw new Error('Usuario no encontrado');
 
+              // Eliminar registro de Firestore
               await firestore()
                 .collection('users')
                 .doc(userId)
@@ -57,7 +55,8 @@ const CompanyDetailScreen = (props: any) => {
                 .doc(personId)
                 .delete();
 
-              dispatch(deletePersonLocal(personId));
+                // ACtualizar el estado local
+                dispatch(deletePersonLocal(personId));
             } catch (err) {
               console.error('Error al eliminar:', err);
               Alert.alert('Error', 'No se pudo eliminar el cliente.');
@@ -68,20 +67,20 @@ const CompanyDetailScreen = (props: any) => {
     );
   };
 
-  // --- Renderizado Principal (La Lista) ---
+  
   return (
     <View style={styles.container}>
-      {/* 6. El título es el nombre de la empresa */}
+      {/* El título es el nombre de la empresa */}
       <Title style={styles.title}>{company.name}</Title>
       <Text style={styles.subtitle}>Clientes en esta empresa</Text>
 
-      {/* 7. Usamos la lista de clientes FILTRADA */}
+      {/* Usamos la lista de clientes FILTRADA */}
       <FlatList
         data={filteredClients}
         renderItem={({ item }) => (
           <PersonListItem
             person={item}
-            // Navegamos a Editar Persona (¡sigue funcionando!)
+            // Navegar a editar persona
             onPress={() => {
               navigation.navigate('EditPerson', { person: item });
             }}
@@ -90,7 +89,7 @@ const CompanyDetailScreen = (props: any) => {
         )}
         keyExtractor={item => item.id}
         
-        // 8. Mensaje de lista vacía personalizado
+        
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No hay clientes asignados a esta empresa.</Text>
@@ -98,7 +97,7 @@ const CompanyDetailScreen = (props: any) => {
         }
       />
 
-      {/* 9. Un botón simple para volver a la lista de empresas */}
+      {/* Un botón simple para volver a la lista de empresas */}
       <Button
         mode="contained"
         onPress={() => navigation.goBack()}
@@ -110,7 +109,7 @@ const CompanyDetailScreen = (props: any) => {
   );
 };
 
-// (Estilos similares, sin FAB)
+// Estilos de la pantalla
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,7 +1,6 @@
 // Archivo: src/screens/PeopleListScreen.tsx
 
 import React, { useEffect } from 'react';
-// <-- 1. IMPORTAMOS Alert
 import { View, StyleSheet, FlatList, Text, Alert } from 'react-native';
 import {
   Title,
@@ -11,16 +10,15 @@ import {
   FAB,
 } from 'react-native-paper';
 
-// <-- 2. IMPORTAMOS auth y firestore
+// Auth y Firestore
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-// --- Redux ---
+// Redux
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-// <-- 3. IMPORTAMOS la nueva acción
 import { fetchPeople, deletePersonLocal } from '../redux/slices/peopleSlice';
-// --- Fin Redux ---
+
 
 import PersonListItem from '../components/PersonListItem';
 
@@ -36,7 +34,7 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
   );
 
   const handleSignOut = async () => {
-    // ... (esta función no cambia)
+    
     try {
       await auth().signOut();
       navigation.navigate('Login');
@@ -45,9 +43,9 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  // <-- 4. CREAMOS LA FUNCIÓN DE ELIMINAR
+  // Función eliminar
   const handleDelete = (personId: string) => {
-    // 4.1. Preguntar al usuario (Confirmación)
+  
     Alert.alert(
       'Eliminar Cliente',
       '¿Estás seguro de que deseas eliminar a este cliente? Esta acción no se puede deshacer.',
@@ -57,12 +55,12 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
           text: 'Cancelar',
           style: 'cancel',
         },
-        // Botón 2: Eliminar (Acción)
+        // Botón 2: Eliminar 
         {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
-            // 4.2. Eliminar de Firebase
+            // Eliminar de Firebase
             try {
               const userId = auth().currentUser?.uid;
               if (!userId) throw new Error('Usuario no encontrado');
@@ -75,7 +73,7 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
                 .doc(personId)
                 .delete();
 
-              // 4.3. Eliminar de Redux (local)
+              // Eliminar de Redux (local)
               // Solo se ejecuta si Firebase tuvo éxito
               dispatch(deletePersonLocal(personId));
 
@@ -89,7 +87,6 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
     );
   };
 
-  // --- (Renderizado condicional 'loading' y 'error' no cambian) ---
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -106,7 +103,7 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
     );
   }
 
-  // --- Renderizado Principal (La Lista) ---
+  
   return (
     <View style={styles.container}>
       <Title style={styles.title}>Lista de Clientes (CRM)</Title>
@@ -119,13 +116,12 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
             onPress={() => {
               navigation.navigate('EditPerson', { person: item });
             }}
-            // <-- 5. PASAMOS LA FUNCIÓN AL ÍTEM
+            
             onDeletePress={() => handleDelete(item.id)}
           />
         )}
         keyExtractor={item => item.id}
         ListEmptyComponent={
-          // ... (esto no cambia)
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Aún no hay clientes.</Text>
           </View>
@@ -145,7 +141,7 @@ const PeopleListScreen = ({ navigation }: { navigation: any }) => {
   );
 };
 
-// --- (Estilos no cambian) ---
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -5,11 +5,11 @@ import { PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// --- Importaciones de Redux ---
+// Importaciones Redux
 import { Provider } from 'react-redux';
 import { store } from './src/redux/store';
 
-// --- Importamos pantallas ---
+// Importar pantallas
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import PeopleListScreen from './src/screens/PeopleListScreen';
@@ -21,17 +21,17 @@ import EditCompanyScreen from './src/screens/EditCompanyScreen';
 import CompanyDetailScreen from './src/screens/CompanyDetailScreen';
 
 
-// 1. Creamos el "Stack Navigator"
+// Crear el "Stack Navigator"
 const Stack = createNativeStackNavigator();
 
-// 2. Este es el bloque de código actualizado
+
 const App = () => {
   return (
-    // 3. El Provider de Redux envuelve todo
+    
     <Provider store={store}>
-      {/* 4. El PaperProvider va dentro */}
+      {/*El PaperProvider va dentro */}
       <PaperProvider>
-        {/* 5. El NavigationContainer va dentro de PaperProvider */}
+        {/*El NavigationContainer va dentro de PaperProvider */}
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName="Login"
@@ -39,7 +39,7 @@ const App = () => {
               headerShown: false,
             }}
           >
-            {/* Tus pantallas */}
+            {/* Pantallas */}
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="Home" component={HomeTabs} />

@@ -1,34 +1,33 @@
 // Archivo: src/components/CompanyListItem.tsx
 
 import React from 'react';
-// <-- 1. IMPORTAMOS IconButton
 import { List, Avatar, IconButton } from 'react-native-paper';
 import { Company } from '../redux/slices/companiesSlice';
 
-// Definimos qué propiedades (props) recibirá este componente
+// Componente que muestra un ítem de empresa dentro de la lista
 interface Props {
   company: Company;
-  onPress: () => void;
-  onDeletePress: () => void; // <-- 2. AÑADIMOS LA PROP DE ELIMINAR
+  onPress: () => void;       // Acción al tocar el ítem
+  onDeletePress: () => void; // Acción al tocar el botón de eliminar
 }
 
 const CompanyListItem: React.FC<Props> = ({
   company,
   onPress,
-  onDeletePress, // <-- 3. Recibimos la prop
+  onDeletePress,
 }) => {
   return (
     <List.Item
-      title={company.name}
-      left={props => <Avatar.Icon {...props} icon="domain" />}
-      onPress={onPress}
-      
-      // <-- 4. AÑADIMOS EL BOTÓN A LA DERECHA
+      title={company.name} // Muestra el nombre de la empresa
+      left={props => <Avatar.Icon {...props} icon="domain" />} // Ícono al inicio
+      onPress={onPress} // Permite abrir o ver detalles
+
+      // Botón de eliminar al lado derecho
       right={props => (
         <IconButton
           {...props}
-          icon="delete" // Icono de papelera
-          onPress={onDeletePress} // Llama a la función de eliminar
+          icon="delete"
+          onPress={onDeletePress}
         />
       )}
     />

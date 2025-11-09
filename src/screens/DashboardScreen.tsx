@@ -5,17 +5,17 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 // 1. Importamos Card y Title
 import { Title, Card, Avatar, Text } from 'react-native-paper';
 
-// --- Redux ---
+// Redux
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-// --- Fin Redux ---
 
+// Pantalla principal del CRM, mostando resumen general (clientes y empresas)
 const DashboardScreen = () => {
-  // 2. Leemos AMBAS listas del "cerebro" de Redux
+  // Obener listas de personas y empresas desde Redux
   const { peopleList } = useSelector((state: RootState) => state.people);
   const { companyList } = useSelector((state: RootState) => state.companies);
 
-  // 3. Calculamos los totales
+  // Calcular los totales
   const totalClients = peopleList.length;
   const totalCompanies = companyList.length;
 
@@ -24,11 +24,10 @@ const DashboardScreen = () => {
     <ScrollView style={styles.container}>
       <Title style={styles.title}>Resumen del CRM</Title>
 
-      {/* 4. Tarjeta para Clientes */}
+      {/* Tarjeta para Clientes */}
       <Card style={styles.card}>
         <Card.Title
           title="Total de Clientes"
-          // Usamos un ícono de 'Avatar'
           left={props => <Avatar.Icon {...props} icon="account-group" />}
         />
         <Card.Content>
@@ -37,7 +36,7 @@ const DashboardScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* 5. Tarjeta para Empresas */}
+      {/*Tarjeta para Empresas */}
       <Card style={styles.card}>
         <Card.Title
           title="Total de Empresas"
@@ -48,7 +47,7 @@ const DashboardScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* (Aquí podríamos añadir más tarjetas en el futuro) */}
+      {/*  */}
     </ScrollView>
   );
 };

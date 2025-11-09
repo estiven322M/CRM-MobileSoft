@@ -1,11 +1,10 @@
 // Archivo: src/screens/CompanyListScreen.tsx
 
 import React, { useEffect } from 'react';
-// Importamos Alert
 import { View, StyleSheet, FlatList, Text, Alert } from 'react-native';
 import {
   Title,
-  Button, // <-- Asegúrate de que Button esté importado (para el logout)
+  Button, 
   ActivityIndicator,
   MD2Colors,
   FAB,
@@ -15,12 +14,11 @@ import {
 import auth from '@react-native-firebase/auth'; // <-- Necesario para el logout
 import firestore from '@react-native-firebase/firestore';
 
-// --- Redux ---
+// Redux
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../redux/store';
-// Importamos la nueva acción
 import { fetchCompanies, deleteCompanyLocal } from '../redux/slices/companiesSlice';
-// --- Fin Redux ---
+
 
 import CompanyListItem from '../components/CompanyListItem';
 
@@ -38,7 +36,7 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
   const handleSignOut = async () => {
     try {
       await auth().signOut();
-      navigation.navigate('Login'); // Asume que 'Login' está en el stack principal
+      navigation.navigate('Login'); 
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
@@ -88,7 +86,7 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
     );
   }
 
-  // --- Renderizado Principal (La Lista) ---
+  // Renderizado
   return (
     <View style={styles.container}>
       <Title style={styles.title}>Lista de Empresas</Title>
@@ -104,13 +102,12 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
           <CompanyListItem
             company={item}
             
-            // --- 👇👇 ¡AQUÍ ESTÁ LA CORRECCIÓN! 👇👇 ---
-            // Cambiamos el destino de 'EditCompany' a 'CompanyDetail'
+            
             onPress={() => {
-              // Navegamos a 'CompanyDetail' y le pasamos el 'item' (la empresa)
+              
               navigation.navigate('CompanyDetail', { company: item });
             }}
-            // --- 👆👆 FIN DE LA CORRECCIÓN 👆👆 ---
+            
 
             onDeletePress={() => handleDelete(item.id)}
           />
@@ -133,7 +130,7 @@ const CompanyListScreen = ({ navigation }: { navigation: any }) => {
   );
 };
 
-// --- (Estilos) ---
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,

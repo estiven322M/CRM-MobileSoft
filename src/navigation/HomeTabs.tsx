@@ -4,7 +4,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// --- 1. IMPORTAMOS LAS 3 PANTALLAS ---
+// Se importan las tres pantallas que apaecerán en la barra inferior
 import DashboardScreen from '../screens/DashboardScreen'; // <-- NUEVA
 import PeopleListScreen from '../screens/PeopleListScreen';
 import CompanyListScreen from '../screens/CompanyListScreen';
@@ -14,19 +14,17 @@ const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   return (
     <Tab.Navigator
-      // Definimos la pestaña inicial
-      initialRouteName="Dashboard" // <-- NUEVO: Empezar en el Dashboard
-      
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: '#6200ee',
-        tabBarInactiveTintColor: 'gray',
+      initialRouteName="Dashboard" //  Empezar en el Dashboard
+        screenOptions={({ route }) => ({
+        headerShown: false, // Oculta el encabezado por defecto
+        tabBarActiveTintColor: '#6200ee', // Color cando la pestaña está activa
+        tabBarInactiveTintColor: 'gray', // Color cuando está inactiva
 
-        // --- 2. ACTUALIZAMOS LA LÓGICA DE ICONOS ---
+        // Asignación de íconos según la pestaña
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName = 'account'; 
+          let iconName = 'account'; // Valor por defecto
 
-          if (route.name === 'Dashboard') { // <-- NUEVA LÓGICA
+          if (route.name === 'Dashboard') { 
             iconName = focused ? 'view-dashboard' : 'view-dashboard-outline';
           } else if (route.name === 'Clientes') {
             iconName = focused ? 'account-group' : 'account-group-outline';
@@ -38,7 +36,7 @@ const HomeTabs = () => {
         },
       })}
     >
-      {/* --- 3. AÑADIMOS LAS 3 PESTAÑAS --- */}
+      {/* --- Añadir las tres pestañas --- */}
       <Tab.Screen name="Dashboard" component={DashboardScreen} /> 
       <Tab.Screen name="Clientes" component={PeopleListScreen} />
       <Tab.Screen name="Empresas" component={CompanyListScreen} />

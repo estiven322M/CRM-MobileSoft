@@ -9,7 +9,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import type { RootState } from '../store';
 
-// 1. Esta interfaz AHORA ES CORRECTA
+// Estructura del modelo Person: representa un contacto asociado a una empresa
 export interface Person {
   id: string;
   name: string;
@@ -18,19 +18,20 @@ export interface Person {
   notes: string;
 }
 
+// Estructura del estado general del slice
 interface PeopleState {
   peopleList: Person[];
   loading: boolean;
   error: string | null;
 }
-
+// Estado inicial
 const initialState: PeopleState = {
   peopleList: [],
   loading: false,
   error: null,
 };
 
-// (El thunk 'fetchPeople' es donde estaba el error)
+// Acción asíncrona que obtiene los contactos del usuario autenticado
 export const fetchPeople = createAsyncThunk(
   'people/fetchPeople',
   async (_, { getState, rejectWithValue }) => {
@@ -48,16 +49,16 @@ export const fetchPeople = createAsyncThunk(
         .collection('contacts')
         .get();
 
-      // 2. 👇👇 ¡AQUÍ ESTÁ LA CORRECCIÓN! 👇👇
-      // Mapeamos los campos correctos de Firebase a nuestra interfaz
+      
+        // Mapeamos los datos de Firestore a nuestro tipo Person
       const peopleList: Person[] = snapshot.docs.map(doc => ({
         id: doc.id,
         name: doc.data().name,
-        companyId: doc.data().companyId, // <-- CORREGIDO
-        companyName: doc.data().companyName, // <-- CORREGIDO
+        companyId: doc.data().companyId, 
+        companyName: doc.data().companyName, 
         notes: doc.data().notes,
       }));
-      // 👆👆 FIN DE LA CORRECCIÓN 👆👆
+      
 
       return peopleList;
     } catch (error: any) {
@@ -67,19 +68,22 @@ export const fetchPeople = createAsyncThunk(
   },
 );
 
-// (El 'createSlice' está bien como lo tenías)
+// Slice principal para manejar la lista de personas
 const peopleSlice = createSlice({
   name: 'people',
   initialState,
   reducers: {
+    // Agrega una persona localmente al estado
     addPerson(state, action: PayloadAction<Person>) {
       state.peopleList.push(action.payload);
     },
+    // Elimina una persona por su ID  
     deletePersonLocal(state, action: PayloadAction<string>) {
       state.peopleList = state.peopleList.filter(
         person => person.id !== action.payload,
       );
     },
+    // Actualiza los datos de una persona existente
     updatePersonLocal(state, action: PayloadAction<Person>) {
       state.peopleList = state.peopleList.map(person =>
         person.id === action.payload.id ? action.payload : person,
@@ -87,7 +91,7 @@ const peopleSlice = createSlice({
     },
   },
 
-  // (El 'extraReducers' está bien)
+  // Manejo de estados de carga y error del thunk fetchPeople
   extraReducers: builder => {
     builder
       .addCase(fetchPeople.pending, state => {
@@ -108,7 +112,7 @@ const peopleSlice = createSlice({
   },
 });
 
-// (Las exportaciones están bien)
+// Exportación de las acciones y el reducer
 export const {
   addPerson,
   deletePersonLocal,

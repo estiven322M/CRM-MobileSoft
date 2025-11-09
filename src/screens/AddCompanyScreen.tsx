@@ -10,13 +10,13 @@ import {
   MD2Colors,
 } from 'react-native-paper';
 
-// --- Firebase & Redux ---
+// Firebase y Redux 
 import firestore from '@react-native-firebase/firestore';
 import { useDispatch } from 'react-redux';
 import { addCompanyLocal } from '../redux/slices/companiesSlice';
-// --- Fin ---
 
-// 1. Definimos los tipos para las props (solo navigation)
+
+// Tipado básico para recibir la prop de navegación
 type Props = {
   navigation: any;
 };
@@ -26,6 +26,7 @@ const AddCompanyScreen = ({ navigation }: Props) => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Maneja el guardado de una nueva empresa
   const handleSave = async () => {
     if (name.trim() === '') {
       Alert.alert('Error', 'El nombre de la empresa es obligatorio.');
@@ -35,12 +36,12 @@ const AddCompanyScreen = ({ navigation }: Props) => {
     setIsLoading(true);
 
     try {
-      // 2. Guardar en Firestore (colección 'companies')
+      // Guarda la empesa en Firestore
       const docRef = await firestore().collection('companies').add({
         name: name,
       });
 
-      // 3. Guardar en Redux (para actualización instantánea)
+      // Actualiza el estado global para reflejar el cambio sin recargar
       dispatch(
         addCompanyLocal({
           id: docRef.id,
@@ -48,7 +49,7 @@ const AddCompanyScreen = ({ navigation }: Props) => {
         }),
       );
 
-      navigation.goBack(); // Volver a la lista
+      navigation.goBack(); // Regresa a la pantalla anterior
     } catch (error) {
       setIsLoading(false);
       console.error('Error guardando empresa:', error);
@@ -56,6 +57,7 @@ const AddCompanyScreen = ({ navigation }: Props) => {
     }
   };
 
+  // Muestra un indicador de carga mientras se guarda la empresa
   if (isLoading) {
     return (
       <View style={styles.loaderContainer}>

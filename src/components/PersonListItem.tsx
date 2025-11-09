@@ -1,30 +1,29 @@
 // Archivo: src/components/PersonListItem.tsx
 
 import React from 'react';
-// <-- 1. IMPORTAMOS IconButton
 import { List, Avatar, IconButton } from 'react-native-paper';
 import { Person } from '../redux/slices/peopleSlice';
 
-// Definimos qué propiedades (props) recibirá este componente
+// Componente para mostrar una persona dentro de la lista
 interface Props {
   person: Person;
-  onPress: () => void; // Para ir a "Detalles"
-  onDeletePress: () => void; // <-- 2. AÑADIMOS LA PROP DE ELIMINAR
+  onPress: () => void; // Acción al tocar el ítem (por ejemplo, ver detalles)
+  onDeletePress: () => void; // Acción al tocar el botón de eliminar
 }
 
 const PersonListItem: React.FC<Props> = ({
   person,
   onPress,
-  onDeletePress, // <-- 3. Recibimos la prop
+  onDeletePress, 
 }) => {
   return (
     <List.Item
-      title={person.name}
-      description={person.companyName || 'Sin empresa'} // Muestra el nombre guardado
+      title={person.name} // Muestra el nombre de la persona
+      description={person.companyName || 'Sin empresa'} // Si no tiene empresa asignada, muestra un texto por defecto
       left={props => <Avatar.Icon {...props} icon="account" />}
       onPress={onPress}
       
-      // <-- 4. AÑADIMOS EL BOTÓN A LA DERECHA
+      // Botón para eliminar a la derecha
       right={props => (
         <IconButton
           {...props}
