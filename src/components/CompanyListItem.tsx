@@ -1,27 +1,26 @@
-// Archivo: src/components/PersonListItem.tsx
+// Archivo: src/components/CompanyListItem.tsx
 
 import React from 'react';
 // <-- 1. IMPORTAMOS IconButton
 import { List, Avatar, IconButton } from 'react-native-paper';
-import { Person } from '../redux/slices/peopleSlice';
+import { Company } from '../redux/slices/companiesSlice';
 
 // Definimos qué propiedades (props) recibirá este componente
 interface Props {
-  person: Person;
-  onPress: () => void; // Para ir a "Detalles"
+  company: Company;
+  onPress: () => void;
   onDeletePress: () => void; // <-- 2. AÑADIMOS LA PROP DE ELIMINAR
 }
 
-const PersonListItem: React.FC<Props> = ({
-  person,
+const CompanyListItem: React.FC<Props> = ({
+  company,
   onPress,
   onDeletePress, // <-- 3. Recibimos la prop
 }) => {
   return (
     <List.Item
-      title={person.name}
-      description={person.companyName || 'Sin empresa'} // Muestra el nombre guardado
-      left={props => <Avatar.Icon {...props} icon="account" />}
+      title={company.name}
+      left={props => <Avatar.Icon {...props} icon="domain" />}
       onPress={onPress}
       
       // <-- 4. AÑADIMOS EL BOTÓN A LA DERECHA
@@ -36,4 +35,4 @@ const PersonListItem: React.FC<Props> = ({
   );
 };
 
-export default PersonListItem;
+export default CompanyListItem;

@@ -1,22 +1,24 @@
 // Archivo: src/screens/AddPersonScreen.tsx
 
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+// --- 1. IMPORTAMOS Menu y Divider ---
 import {
   TextInput,
   Button,
   Title,
-  ActivityIndicator, // <-- 1. Importar el cargador
-  MD2Colors,
+  Menu,
+  Divider,
 } from 'react-native-paper';
 
 // --- Redux ---
-import { useDispatch } from 'react-redux';
-import { addPerson } from '../redux/slices/peopleSlice';
+// --- 2. IMPORTAMOS useSelector y RootState ---
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store'; // Para leer la lista de empresas
+import { addPerson, Person } from '../redux/slices/peopleSlice'; // Importamos Person
 // --- Fin Redux ---
 
 // --- Firebase ---
-// <-- 2. Importar firestore y auth
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 // --- Fin Firebase ---
@@ -24,78 +26,69 @@ import auth from '@react-native-firebase/auth';
 const AddPersonScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
 
-  const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
-  const [notes, setNotes] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // <-- 3. Añadir estado de carga
+  // --- 3. LEEMOS LA LISTA DE EMPRESAS DE REDUX ---
+  const { companyList } = useSelector((state: RootState) => state.companies);
 
-  // <-- 4. Convertir la función en 'async'
+  // Estados del formulario
+  const [name, setName] = useState('');
+  const [notes, setNotes] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // (Lo añadiremos después)
+
+  // --- 4. ESTADOS PARA EL MENÚ DESPLEGABLE ---
+  const [menuVisible, setMenuVisible] = useState(false);
+  // Guardamos el objeto de empresa seleccionado (o null)
+  const [selectedCompany, setSelectedCompany] = useState<{ id: string; name: string } | null>(null);
+
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
   const handleSave = async () => {
-    // Validar que el nombre no esté vacío
     if (name.trim() === '') {
       Alert.alert('Error', 'El nombre es obligatorio.');
       return;
     }
 
-    // <-- 5. Obtener el ID del usuario actual
     const currentUser = auth().currentUser;
     if (!currentUser) {
-      Alert.alert('Error', 'No estás autenticado. Por favor, inicia sesión de nuevo.');
+      Alert.alert('Error', 'No estás autenticado.');
       return;
     }
 
-    setIsLoading(true); // Activar el cargador
-
-    // Datos del nuevo cliente
+    // --- 5. PREPARAMOS LOS DATOS PARA GUARDAR ---
     const newPersonData = {
       name: name,
-      company: company,
       notes: notes,
+      // Guardamos el ID y el nombre de la empresa seleccionada
+      companyId: selectedCompany ? selectedCompany.id : null,
+      companyName: selectedCompany ? selectedCompany.name : 'Sin empresa',
     };
 
     try {
-      // <-- 6. Guardar en Firestore
-      // Estructura: /users/{userId}/contacts/{auto-id}
-      // Esto crea un documento nuevo dentro de una sub-colección "contacts"
-      // que pertenece al usuario que está logueado.
+      // Guardar en Firestore
       const docRef = await firestore()
         .collection('users')
         .doc(currentUser.uid)
         .collection('contacts')
-        .add(newPersonData); // '.add' genera un ID automático
+        .add(newPersonData);
 
-      // <-- 7. Guardar en Redux (¡con el ID real de Firestore!)
-      // Despachamos la acción 'addPerson' con el ID que nos dio Firestore.
+      // Guardar en Redux (con el ID real)
       dispatch(
         addPerson({
           ...newPersonData,
-          id: docRef.id, // Usamos el ID real de la base de datos
-        }),
+          id: docRef.id,
+        } as Person), // Le decimos a TS que esto es una Persona
       );
 
-      navigation.goBack(); // Regresar a la lista (ya no necesitamos el loader aquí)
-
+      navigation.goBack();
     } catch (error) {
-      setIsLoading(false); // Asegurarse de quitar el cargador si hay un error
       console.error('Error guardando cliente:', error);
-      Alert.alert('Error', 'No se pudo guardar el cliente en la base de datos.');
+      Alert.alert('Error', 'No se pudo guardar el cliente.');
     }
-    // No ponemos 'setIsLoading(false)' aquí porque la navegación desmonta la pantalla.
   };
 
-  // <-- 8. Renderizar el cargador si isLoading es true
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={MD2Colors.blue500} />
-        <Title style={styles.loaderText}>Guardando...</Title>
-      </View>
-    );
-  }
-
-  // El formulario (return principal)
   return (
-    <View style={styles.container}>
+    // Usamos ScrollView por si la lista de empresas es muy larga
+    <ScrollView contentContainerStyle={styles.container}>
       <Title style={styles.title}>Añadir Nuevo Cliente</Title>
 
       <TextInput
@@ -105,12 +98,46 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
         style={styles.input}
       />
 
-      <TextInput
-        label="Compañía"
-        value={company}
-        onChangeText={setCompany}
-        style={styles.input}
-      />
+      {/* --- 6. EL NUEVO MENÚ DESPLEGABLE --- */}
+      <Menu
+        visible={menuVisible}
+        onDismiss={closeMenu}
+        // El 'anchor' es el botón que abre el menú
+        anchor={
+          <Button
+            mode="outlined" // Estilo de borde
+            onPress={openMenu}
+            icon="office-building"
+            style={styles.input}
+            contentStyle={styles.menuButton}
+            labelStyle={{color: '#333'}}
+          >
+            {selectedCompany ? selectedCompany.name : 'Seleccionar una empresa'}
+          </Button>
+        }
+      >
+        {/* Opción para "Ninguna" */}
+        <Menu.Item
+          onPress={() => {
+            setSelectedCompany(null);
+            closeMenu();
+          }}
+          title="Ninguna / Sin empresa"
+        />
+        <Divider />
+        {/* Mapeamos la lista de empresas desde Redux */}
+        {companyList.map(company => (
+          <Menu.Item
+            key={company.id}
+            onPress={() => {
+              setSelectedCompany(company);
+              closeMenu();
+            }}
+            title={company.name}
+          />
+        ))}
+      </Menu>
+      {/* --- FIN DEL MENÚ --- */}
 
       <TextInput
         label="Notas"
@@ -121,12 +148,10 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
         numberOfLines={4}
       />
 
-      {/* <-- 9. Deshabilitar botones mientras carga */}
       <Button
         mode="contained"
         onPress={handleSave}
         style={styles.button}
-        disabled={isLoading} 
       >
         Guardar Cliente
       </Button>
@@ -135,20 +160,20 @@ const AddPersonScreen = ({ navigation }: { navigation: any }) => {
         mode="text"
         onPress={() => navigation.goBack()}
         style={styles.button}
-        disabled={isLoading}
       >
         Cancelar
       </Button>
-    </View>
+    </ScrollView>
   );
 };
 
-// <-- 10. Añadir estilos para el cargador
 const styles = StyleSheet.create({
+  // Tuvimos que cambiar el 'justifyContent' para que funcione el ScrollView
   container: {
-    flex: 1,
+    flexGrow: 1, 
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Alinea al inicio
+    paddingTop: 60,
   },
   title: {
     fontSize: 24,
@@ -161,14 +186,10 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10,
   },
-  loaderContainer: {
-    flex: 1,
+  // Estilo para el botón del menú
+  menuButton: {
+    height: 50,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loaderText: {
-    marginTop: 15,
-    fontSize: 18,
   },
 });
 

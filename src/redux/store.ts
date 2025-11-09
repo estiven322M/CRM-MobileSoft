@@ -3,6 +3,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 // Importamos el reducer de nuestro "peopleSlice"
 import peopleReducer from './slices/peopleSlice';
+import companiesReducer from './slices/companiesSlice';
 
 // 1. Creamos el store
 export const store = configureStore({
@@ -10,7 +11,7 @@ export const store = configureStore({
   reducer: {
     // Le decimos que el 'peopleReducer' manejará la parte 'people' del estado
     people: peopleReducer,
-    // (Aquí añadiremos el slice de 'companies' en el futuro)
+    companies: companiesReducer,
   },
 });
 

@@ -9,11 +9,12 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import type { RootState } from '../store';
 
-// (Las interfaces 'Person' y 'PeopleState' no cambian)
+// 1. Esta interfaz AHORA ES CORRECTA
 export interface Person {
   id: string;
   name: string;
-  company: string;
+  companyId: string | null;
+  companyName: string;
   notes: string;
 }
 
@@ -29,11 +30,10 @@ const initialState: PeopleState = {
   error: null,
 };
 
-// (El thunk 'fetchPeople' no cambia)
+// (El thunk 'fetchPeople' es donde estaba el error)
 export const fetchPeople = createAsyncThunk(
   'people/fetchPeople',
   async (_, { getState, rejectWithValue }) => {
-    // ... (lógica de fetchPeople sin cambios)
     try {
       const state = getState() as RootState;
       const userId = auth().currentUser?.uid;
@@ -48,12 +48,16 @@ export const fetchPeople = createAsyncThunk(
         .collection('contacts')
         .get();
 
+      // 2. 👇👇 ¡AQUÍ ESTÁ LA CORRECCIÓN! 👇👇
+      // Mapeamos los campos correctos de Firebase a nuestra interfaz
       const peopleList: Person[] = snapshot.docs.map(doc => ({
         id: doc.id,
         name: doc.data().name,
-        company: doc.data().company,
+        companyId: doc.data().companyId, // <-- CORREGIDO
+        companyName: doc.data().companyName, // <-- CORREGIDO
         notes: doc.data().notes,
       }));
+      // 👆👆 FIN DE LA CORRECCIÓN 👆👆
 
       return peopleList;
     } catch (error: any) {
@@ -63,35 +67,27 @@ export const fetchPeople = createAsyncThunk(
   },
 );
 
-// (El 'createSlice' es donde están los cambios)
+// (El 'createSlice' está bien como lo tenías)
 const peopleSlice = createSlice({
   name: 'people',
   initialState,
-  // Reducers síncronos
   reducers: {
-    // Este ya lo tenías
     addPerson(state, action: PayloadAction<Person>) {
       state.peopleList.push(action.payload);
     },
-    // Este ya lo tenías
     deletePersonLocal(state, action: PayloadAction<string>) {
       state.peopleList = state.peopleList.filter(
         person => person.id !== action.payload,
       );
     },
-
-    // <-- 1. AÑADIMOS EL REDUCER DE ACTUALIZAR
-    // Recibe el objeto 'Person' completo y actualizado
     updatePersonLocal(state, action: PayloadAction<Person>) {
-      // Usamos .map para crear un nuevo array
-      // Reemplazamos solo el ítem que coincide con el ID
       state.peopleList = state.peopleList.map(person =>
         person.id === action.payload.id ? action.payload : person,
       );
     },
   },
 
-  // (El 'extraReducers' para 'fetchPeople' no cambia)
+  // (El 'extraReducers' está bien)
   extraReducers: builder => {
     builder
       .addCase(fetchPeople.pending, state => {
@@ -112,12 +108,11 @@ const peopleSlice = createSlice({
   },
 });
 
-// 8. Exportamos las "acciones" síncronas
+// (Las exportaciones están bien)
 export const {
   addPerson,
   deletePersonLocal,
-  updatePersonLocal, // <-- 2. EXPORTAMOS LA NUEVA ACCIÓN
+  updatePersonLocal,
 } = peopleSlice.actions;
 
-// 9. Exportamos el reducer principal del slice
 export default peopleSlice.reducer;

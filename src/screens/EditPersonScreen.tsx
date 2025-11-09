@@ -1,37 +1,55 @@
 // Archivo: src/screens/EditPersonScreen.tsx
 
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+// 1. IMPORTAMOS Menu y Divider
 import {
   TextInput,
   Button,
   Title,
+  Menu,
+  Divider,
   ActivityIndicator,
   MD2Colors,
 } from 'react-native-paper';
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
-import { Person } from '../redux/slices/peopleSlice';
 
 // --- Redux ---
-import { useDispatch } from 'react-redux';
-// <-- 1. IMPORTAMOS LA NUEVA ACCIÓN
-import { updatePersonLocal } from '../redux/slices/peopleSlice';
+// 2. IMPORTAMOS useSelector, RootState y la acción de actualizar
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store'; // Para leer la lista de empresas
+import { updatePersonLocal, Person } from '../redux/slices/peopleSlice'; // Importamos Person
 // --- Fin Redux ---
 
+// --- Firebase ---
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+// --- Fin Firebase ---
 
-// (Usamos la corrección 'props: any' que nos funcionó)
 const EditPersonScreen = (props: any) => {
   const { navigation, route } = props;
-  const { person } = route.params;
+  const { person } = route.params; // Recibimos la persona que vamos a editar
 
   const dispatch = useDispatch();
 
+  // 3. LEEMOS LA LISTA DE EMPRESAS DE REDUX
+  const { companyList } = useSelector((state: RootState) => state.companies);
+
+  // 4. ESTADOS DEL FORMULARIO (PRE-RELLENADOS)
   const [name, setName] = useState(person.name);
-  const [company, setCompany] = useState(person.company);
   const [notes, setNotes] = useState(person.notes);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 5. ESTADOS DEL MENÚ (PRE-RELLENADOS)
+  const [menuVisible, setMenuVisible] = useState(false);
+  // Pre-seleccionamos la empresa con la que venía el cliente
+  const [selectedCompany, setSelectedCompany] = useState<{ id: string | null; name: string } | null>(
+    person.companyId ? { id: person.companyId, name: person.companyName } : null
+  );
+
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  // 6. LÓGICA DE ACTUALIZAR (MODIFICADA)
   const handleUpdate = async () => {
     if (name.trim() === '') {
       Alert.alert('Error', 'El nombre es obligatorio.');
@@ -46,40 +64,38 @@ const EditPersonScreen = (props: any) => {
 
     setIsLoading(true);
 
+    // 7. PREPARAMOS LOS DATOS PARA ACTUALIZAR
     const updatedData = {
       name: name,
-      company: company,
       notes: notes,
+      companyId: selectedCompany ? selectedCompany.id : null,
+      companyName: selectedCompany ? selectedCompany.name : 'Sin empresa',
     };
 
     try {
-      // 1. Actualizar Firebase
+      // 8. Actualizar en Firebase
       await firestore()
         .collection('users')
         .doc(currentUser.uid)
         .collection('contacts')
-        .doc(person.id)
-        .update(updatedData);
+        .doc(person.id) // Usamos el ID del cliente existente
+        .update(updatedData); // Usamos .update()
 
-      // <-- 2. ¡LA LÓGICA DE REDUX!
-      // Creamos el objeto 'Person' completo y actualizado
-      const updatedPerson = {
-        id: person.id,
-        ...updatedData,
-      };
-      // Despachamos la acción a Redux para actualizar la lista local
-      dispatch(updatePersonLocal(updatedPerson));
+      // 9. Actualizar en Redux
+      dispatch(
+        updatePersonLocal({
+          ...updatedData,
+          id: person.id, // Mantenemos el ID original
+        } as Person),
+      );
 
-      // 3. Volver a la lista
       navigation.goBack();
     } catch (error) {
       setIsLoading(false);
-      console.error('Error actualizando:', error);
+      console.error('Error actualizando cliente:', error);
       Alert.alert('Error', 'No se pudo actualizar el cliente.');
     }
   };
-
-  // (El resto del componente 'return', 'if (isLoading)', etc. no cambia)
 
   if (isLoading) {
     return (
@@ -91,7 +107,8 @@ const EditPersonScreen = (props: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    // Usamos ScrollView por si la lista de empresas es muy larga
+    <ScrollView contentContainerStyle={styles.container}>
       <Title style={styles.title}>Editar Cliente</Title>
 
       <TextInput
@@ -101,12 +118,44 @@ const EditPersonScreen = (props: any) => {
         style={styles.input}
       />
 
-      <TextInput
-        label="Compañía"
-        value={company}
-        onChangeText={setCompany}
-        style={styles.input}
-      />
+      {/* --- 10. EL MENÚ DESPLEGABLE (IDÉNTICO A ADDPERSON) --- */}
+      <Menu
+        visible={menuVisible}
+        onDismiss={closeMenu}
+        anchor={
+          <Button
+            mode="outlined"
+            onPress={openMenu}
+            icon="office-building"
+            style={styles.input}
+            contentStyle={styles.menuButton}
+            labelStyle={{color: '#333'}}
+          >
+            {/* Mostramos el nombre de la empresa seleccionada */}
+            {selectedCompany ? selectedCompany.name : 'Seleccionar una empresa'}
+          </Button>
+        }
+      >
+        <Menu.Item
+          onPress={() => {
+            setSelectedCompany(null);
+            closeMenu();
+          }}
+          title="Ninguna / Sin empresa"
+        />
+        <Divider />
+        {companyList.map(company => (
+          <Menu.Item
+            key={company.id}
+            onPress={() => {
+              setSelectedCompany(company);
+              closeMenu();
+            }}
+            title={company.name}
+          />
+        ))}
+      </Menu>
+      {/* --- FIN DEL MENÚ --- */}
 
       <TextInput
         label="Notas"
@@ -119,7 +168,7 @@ const EditPersonScreen = (props: any) => {
 
       <Button
         mode="contained"
-        onPress={handleUpdate}
+        onPress={handleUpdate} // Llamamos a handleUpdate
         style={styles.button}
         disabled={isLoading}
       >
@@ -134,16 +183,17 @@ const EditPersonScreen = (props: any) => {
       >
         Cancelar
       </Button>
-    </View>
+    </ScrollView>
   );
 };
 
-// (Estilos - sin cambios)
+// (Estilos - actualizados para ScrollView)
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 60,
   },
   title: {
     fontSize: 24,
@@ -155,6 +205,10 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+  },
+  menuButton: {
+    height: 50,
+    justifyContent: 'center',
   },
   loaderContainer: {
     flex: 1,
